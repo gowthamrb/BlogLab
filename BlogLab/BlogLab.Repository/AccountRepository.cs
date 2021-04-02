@@ -55,21 +55,28 @@ namespace BlogLab.Repository
 
         public async Task<ApplicationUserIdentity> GetByUsernameAsync(string normalizedUsername, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            ApplicationUserIdentity applicationUser;
-
-            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+           
+            try
             {
-                await connection.OpenAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                applicationUser = await connection.QuerySingleOrDefaultAsync<ApplicationUserIdentity>(
-                    "Account_GetByUsername", new { NormalizedUsername = normalizedUsername },
-                    commandType: CommandType.StoredProcedure
-                    );
+                ApplicationUserIdentity applicationUser;
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync(cancellationToken);
+
+                    applicationUser = await connection.QuerySingleOrDefaultAsync<ApplicationUserIdentity>(
+                        "Account_GetByUsername", new { NormalizedUsername = normalizedUsername },
+                        commandType: CommandType.StoredProcedure
+                        );
+                }
+                return applicationUser;
             }
-
-            return applicationUser;
+            catch(Exception e)
+            {
+                throw e;
+            }
+            
         }
     }
 }
